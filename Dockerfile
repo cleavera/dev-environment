@@ -19,7 +19,7 @@ RUN \
 ARG USERNAME=dev
 RUN useradd -m -s /bin/zsh $USERNAME && usermod -aG sudo $USERNAME
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
 COPY set_password.sh /usr/local/bin/set_password.sh
