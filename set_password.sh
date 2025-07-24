@@ -8,4 +8,4 @@ if passwd -S "$CURRENT_USER" 2>/dev/null | grep -q " NP "; then
     passwd
 fi
 
-exec "$SHELL"
+exec /bin/zsh

@@ -14,7 +14,6 @@ RUN \
     curl \
     git \
     tmux \
-    dos2unix \
   && rm -rf /var/lib/apt/lists/* 
 
 ARG USERNAME=dev
@@ -26,8 +25,7 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
 COPY set_password.sh /usr/local/bin/set_password.sh
 RUN chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
-RUN chmod +x /usr/local/bin/set_password.sh \
-  && dos2unix /usr/local/bin/set_password.sh
+RUN chmod +x /usr/local/bin/set_password.sh
 
 USER $USERNAME
 WORKDIR /home/$USERNAME
