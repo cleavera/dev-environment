@@ -1,5 +1,5 @@
 FROM debian:bookworm
-&& dos2unix /usr/local/bin/set_password.sh
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN \
