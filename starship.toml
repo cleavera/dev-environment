@@ -83,3 +83,6 @@ format = 'via [$symbol]($style)'
 
 [git_status]
 disabled = true
+
+[hostname]
+disabled = true
