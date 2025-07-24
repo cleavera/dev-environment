@@ -8,6 +8,7 @@ RUN \
     build-essential \
     pkg-config \
     libssl-dev \
+    cmake \
     sudo \
     zsh \
     curl \
@@ -15,23 +16,25 @@ RUN \
     tmux \
   && rm -rf /var/lib/apt/lists/* 
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
-    echo 'source $HOME/.cargo/env' >> /etc/profile
-
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-RUN cargo install starship --locked
-RUN cargo install gitui --locked
-
 ARG USERNAME=dev
 RUN useradd -m -s /bin/zsh $USERNAME && usermod -aG sudo $USERNAME
 
-COPY set_password.sh /usr/local/bin/set_password.sh
-RUN chmod +x /usr/local/bin/set_password.sh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-COPY starship.toml /home/$USERNAME/.config/starship.toml
+COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
+COPY set_password.sh /usr/local/bin/set_password.sh
+RUN chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
+RUN chmod +x /usr/local/bin/set_password.sh
 
 USER $USERNAME
 WORKDIR /home/$USERNAME
+
+RUN mkdir -p .config
+COPY starship.toml /home/$USERNAME/.config/starship.toml
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/home/${USERNAME}/.cargo/bin:${PATH}"
+RUN cargo install starship --locked \
+  && cargo install gitui --locked
 
 CMD ["/usr/local/bin/set_password.sh"]
