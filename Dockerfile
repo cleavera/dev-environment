@@ -14,18 +14,26 @@ RUN \
     curl \
     git \
     tmux \
+    dos2unix \
   && rm -rf /var/lib/apt/lists/* 
 
 ARG USERNAME=dev
 RUN useradd -m -s /bin/zsh $USERNAME && usermod -aG sudo $USERNAME
-RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
-
+USER $USERNAME
+WORKDIR /home/$USERNAME
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+USER root
 
 COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
 COPY set_password.sh /usr/local/bin/set_password.sh
-RUN chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
-RUN chmod +x /usr/local/bin/set_password.sh
+COPY starship.toml /home/$USERNAME/.config/starship.toml
+COPY .zshrc /home/$USERNAME/.zshrc
+COPY .tmux.conf /home/$USERNAME/.tmux.conf
+
+RUN dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /usr/local/bin/set_password.sh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf && \
+    chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /usr/local/bin/set_password.sh && \
+    chown -R $USERNAME:$USERNAME /home/$USERNAME
 
 USER $USERNAME
 WORKDIR /home/$USERNAME
@@ -35,8 +43,6 @@ ENV PATH="/home/${USERNAME}/.cargo/bin:${PATH}"
 RUN cargo install starship --locked \
   && cargo install gitui --locked
 
-RUN mkdir -p .config
-COPY starship.toml /home/$USERNAME/.config/starship.toml
-COPY .zshrc /home/$USERNAME/.zshrc
+RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
-CMD ["/usr/local/bin/set_password.sh"]
+CMD ["sudo /usr/local/bin/set_password.sh"]
