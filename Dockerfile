@@ -15,7 +15,24 @@ RUN \
     git \
     tmux \
     dos2unix \
-  && rm -rf /var/lib/apt/lists/* 
+    wget \
+    fontconfig \
+    locales \
+    unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+# Configure locale
+RUN sed -i '/en_GB.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ENV LANG en_GB.UTF-8
+ENV LANGUAGE en_GB:en
+ENV LC_ALL en_GB.UTF-8
+
+# Install Nerd Fonts (CaskaydiaMono)
+RUN mkdir -p /usr/local/share/fonts/caskaydiamono \
+    && wget -O /tmp/caskaydia.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip \
+    && unzip /tmp/caskaydia.zip -d /usr/local/share/fonts/caskaydiamono \
+    && rm /tmp/caskaydia.zip \
+    && fc-cache -f -v 
 
 ARG USERNAME=dev
 RUN useradd -m -s /bin/zsh $USERNAME && usermod -aG sudo $USERNAME
@@ -43,6 +60,6 @@ ENV PATH="/home/${USERNAME}/.cargo/bin:${PATH}"
 RUN cargo install starship --locked \
   && cargo install gitui --locked
 
-RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins
 
 CMD ["sudo /usr/local/bin/set_password.sh"]
