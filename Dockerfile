@@ -21,13 +21,11 @@ RUN \
     unzip \
   && rm -rf /var/lib/apt/lists/*
 
-# Configure locale
 RUN sed -i '/en_GB.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-ENV LANG en_GB.UTF-8
-ENV LANGUAGE en_GB:en
-ENV LC_ALL en_GB.UTF-8
+ENV LANG=en_GB.UTF-8
+ENV LANGUAGE=en_GB:en
+ENV LC_ALL=en_GB.UTF-8
 
-# Install Nerd Fonts (CaskaydiaMono)
 RUN mkdir -p /usr/local/share/fonts/caskaydiamono \
     && wget -O /tmp/caskaydia.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip \
     && unzip /tmp/caskaydia.zip -d /usr/local/share/fonts/caskaydiamono \
@@ -35,7 +33,8 @@ RUN mkdir -p /usr/local/share/fonts/caskaydiamono \
     && fc-cache -f -v 
 
 ARG USERNAME=dev
-RUN useradd -m -s /bin/zsh $USERNAME && usermod -aG sudo $USERNAME
+RUN useradd -m -s /bin/zsh $USERNAME && usermod -aG sudo $USERNAME && \
+    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME
 USER $USERNAME
 WORKDIR /home/$USERNAME
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -61,5 +60,8 @@ RUN cargo install starship --locked \
   && cargo install gitui --locked
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins
+RUN git clone https://github.com/neovim/neovim ~/git/neovim \
+  && make CMAKE_BUILD_TYPE=RelWithDebInfo \
+  && sudo make install
 
 CMD ["sudo /usr/local/bin/set_password.sh"]

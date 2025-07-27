@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Remove passwordless sudo access
+if [ -f /etc/sudoers.d/dev ]; then
+    rm /etc/sudoers.d/dev
+fi
+
 CURRENT_USER=$(whoami)
 
 if passwd -S "$CURRENT_USER" 2>/dev/null | grep -q " NP "; then
