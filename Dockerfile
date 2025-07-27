@@ -42,12 +42,12 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 USER root
 
 COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
-COPY set_password.sh /usr/local/bin/set_password.sh
+COPY set_password.sh /home/$USERNAME/bin/set_password.sh
 COPY starship.toml /home/$USERNAME/.config/starship.toml
 COPY .zshrc /home/$USERNAME/.zshrc
 COPY .tmux.conf /home/$USERNAME/.tmux.conf
 
-RUN dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /usr/local/bin/set_password.sh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf && \
+RUN dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/bin/set_password.sh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf && \
     chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /usr/local/bin/set_password.sh && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME
 
@@ -61,7 +61,10 @@ RUN cargo install starship --locked \
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins
 RUN git clone https://github.com/neovim/neovim ~/git/neovim \
+  && cd ~/git/neovim \
   && make CMAKE_BUILD_TYPE=RelWithDebInfo \
   && sudo make install
 
-CMD ["sudo /usr/local/bin/set_password.sh"]
+RUN git clone https://github.com/cleavera/nvim-config ~/.config/nvim
+
+CMD ["sudo /home/${USERNAME}/bin/set_password.sh"]
