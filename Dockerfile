@@ -48,7 +48,7 @@ COPY .zshrc /home/$USERNAME/.zshrc
 COPY .tmux.conf /home/$USERNAME/.tmux.conf
 
 RUN dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/bin/set_password.sh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf && \
-    chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /usr/local/bin/set_password.sh && \
+    chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/bin/set_password.sh && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME
 
 USER $USERNAME
