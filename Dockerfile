@@ -74,6 +74,11 @@ RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins
 RUN git clone https://github.com/cleavera/nvim-config ~/.config/nvim
 
+ARG GIT_USER_NAME
+ARG GIT_USER_EMAIL
+RUN if [ -n "$GIT_USER_NAME" ]; then git config --global user.name "$GIT_USER_NAME"; fi && \
+    if [ -n "$GIT_USER_EMAIL" ]; then git config --global user.email "$GIT_USER_EMAIL"; fi
+
 # Switch to root to set password, expire it, and remove passwordless sudo
 USER root
 RUN echo "$USERNAME:admin" | chpasswd && passwd -e $USERNAME && rm /etc/sudoers.d/$USERNAME
