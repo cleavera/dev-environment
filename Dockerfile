@@ -47,27 +47,32 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/${USERNAME}/.cargo/bin:${PATH}"
-RUN cargo install starship --locked \
-  && cargo install gitui --locked \
-  && cargo install gitlist --locked
+RUN cargo install starship --locked
+RUN cargo install gitui --locked 
+RUN cargo install gitlist --locked
+RUN cargo install fnm --locked
 
-RUN git clone https://github.com/neovim/neovim ~/git/neovim \
-  && cd ~/git/neovim \
+RUN git clone https://github.com/neovim/neovim ~/.local/share/neovim \
+  && cd ~/.local/share/neovim \
   && make CMAKE_BUILD_TYPE=RelWithDebInfo \
   && sudo make install
 
-COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
+ENV FNM_DIR="/home/$USERNAME/.local/share/fnm"
+ENV PATH="/home/$USERNAME/.local/share/fnm:$PATH"
+RUN eval "$(fnm env --shell bash)" && fnm install lts/jod && fnm default lts/jod
 
+COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
 COPY starship.toml /home/$USERNAME/.config/starship.toml
 COPY .zshrc /home/$USERNAME/.zshrc
 COPY .tmux.conf /home/$USERNAME/.tmux.conf
+COPY gitui-theme.ron /home/$USERNAME/.config/gitui/theme.ron
 
-RUN sudo dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf
+RUN sudo dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf /home/$USERNAME/.config/gitui/theme.ron
 RUN sudo chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
+RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins
-
-RUN sudo git clone https://github.com/cleavera/nvim-config ~/.config/nvim
+RUN git clone https://github.com/cleavera/nvim-config ~/.config/nvim
 
 # Switch to root to set password, expire it, and remove passwordless sudo
 USER root
