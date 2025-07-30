@@ -19,7 +19,13 @@ RUN \
     fontconfig \
     locales \
     unzip \
+    fzf \
+    tzdata \
   && rm -rf /var/lib/apt/lists/*
+
+# Set the timezone to get correct DST
+ENV TZ=Europe/London
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN sed -i '/en_GB.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 ENV LANG=en_GB.UTF-8
