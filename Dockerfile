@@ -23,7 +23,6 @@ RUN \
     tzdata \
   && rm -rf /var/lib/apt/lists/*
 
-# Set the timezone to get correct DST
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -59,7 +58,7 @@ RUN git clone https://github.com/neovim/neovim ~/.local/share/neovim \
 
 ENV FNM_DIR="/home/$USERNAME/.local/share/fnm"
 ENV PATH="/home/$USERNAME/.local/share/fnm:$PATH"
-RUN eval "$(fnm env --shell bash)" && fnm install lts/jod && fnm default lts/jod
+RUN eval "$(fnm env --shell bash)" && fnm install lts/jod && fnm default lts/jod && npm install -g @google/gemini-cli
 
 COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
 COPY starship.toml /home/$USERNAME/.config/starship.toml
@@ -86,11 +85,9 @@ RUN if [ -n "$GIT_USER_NAME" ]; then git config --global user.name "$GIT_USER_NA
 
 RUN git config --global credential.helper store
 
-# Switch to root to set password, expire it, and remove passwordless sudo
 USER root
 RUN echo "$USERNAME:admin" | chpasswd && passwd -e $USERNAME && rm /etc/sudoers.d/$USERNAME
 
-# Switch back to the dev user for the final container shell
 USER $USERNAME
 WORKDIR /home/$USERNAME
 
