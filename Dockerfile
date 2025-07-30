@@ -42,14 +42,14 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 USER root
 
 COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
-COPY set_password.sh /home/$USERNAME/bin/set_password.sh
+
 COPY starship.toml /home/$USERNAME/.config/starship.toml
 COPY .zshrc /home/$USERNAME/.zshrc
 COPY .tmux.conf /home/$USERNAME/.tmux.conf
 
-RUN dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/bin/set_password.sh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf && \
-    chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/bin/set_password.sh && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME
+RUN dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf && \
+  chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh && \
+  chown -R $USERNAME:$USERNAME /home/$USERNAME
 
 USER $USERNAME
 WORKDIR /home/$USERNAME
@@ -57,7 +57,8 @@ WORKDIR /home/$USERNAME
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/${USERNAME}/.cargo/bin:${PATH}"
 RUN cargo install starship --locked \
-  && cargo install gitui --locked
+  && cargo install gitui --locked \
+  && cargo install gitlist --locked
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins
 RUN git clone https://github.com/neovim/neovim ~/git/neovim \
@@ -67,4 +68,12 @@ RUN git clone https://github.com/neovim/neovim ~/git/neovim \
 
 RUN git clone https://github.com/cleavera/nvim-config ~/.config/nvim
 
-CMD ["sudo /home/${USERNAME}/bin/set_password.sh"]
+# Switch to root to set password, expire it, and remove passwordless sudo
+USER root
+RUN echo "$USERNAME:admin" | chpasswd && passwd -e $USERNAME && rm /etc/sudoers.d/$USERNAME
+
+# Switch back to the dev user for the final container shell
+USER $USERNAME
+WORKDIR /home/$USERNAME
+
+CMD ["/bin/zsh"]
