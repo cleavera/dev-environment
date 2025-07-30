@@ -79,6 +79,8 @@ ARG GIT_USER_EMAIL
 RUN if [ -n "$GIT_USER_NAME" ]; then git config --global user.name "$GIT_USER_NAME"; fi && \
     if [ -n "$GIT_USER_EMAIL" ]; then git config --global user.email "$GIT_USER_EMAIL"; fi
 
+RUN git config --global credential.helper store
+
 # Switch to root to set password, expire it, and remove passwordless sudo
 USER root
 RUN echo "$USERNAME:admin" | chpasswd && passwd -e $USERNAME && rm /etc/sudoers.d/$USERNAME
