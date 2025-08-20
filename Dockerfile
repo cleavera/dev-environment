@@ -58,7 +58,7 @@ RUN git clone https://github.com/neovim/neovim ~/.local/share/neovim \
 
 ENV FNM_DIR="/home/$USERNAME/.local/share/fnm"
 ENV PATH="/home/$USERNAME/.local/share/fnm:$PATH"
-RUN eval "$(fnm env --shell bash)" && fnm install lts/jod && fnm default lts/jod && npm install -g @google/gemini-cli
+RUN eval "$(fnm env --shell bash)" && fnm install lts/jod && fnm default lts/jod && npm install -g @google/gemini-cli@0.1.18
 
 COPY projects.zsh /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
 COPY starship.toml /home/$USERNAME/.config/starship.toml
@@ -67,10 +67,10 @@ COPY .tmux.conf /home/$USERNAME/.tmux.conf
 COPY gitui-theme.ron /home/$USERNAME/.config/gitui/theme.ron
 COPY git-checkout.sh /usr/local/bin/git-checkout.sh
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY clean-repos.sh /usr/local/bin/clean-repos.sh
 
-RUN sudo dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf /home/$USERNAME/.config/gitui/theme.ron /usr/local/bin/git-checkout.sh /usr/local/bin/entrypoint.sh
-RUN sudo chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh
-RUN sudo chmod +x /usr/local/bin/git-checkout.sh /usr/local/bin/entrypoint.sh
+RUN sudo dos2unix /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /home/$USERNAME/.config/starship.toml /home/$USERNAME/.zshrc /home/$USERNAME/.tmux.conf /home/$USERNAME/.config/gitui/theme.ron /usr/local/bin/git-checkout.sh /usr/local/bin/entrypoint.sh /usr/local/bin/clean-repos.sh
+RUN sudo chmod +x /home/$USERNAME/.oh-my-zsh/custom/projects.zsh /usr/local/bin/git-checkout.sh /usr/local/bin/entrypoint.sh /usr/local/bin/clean-repos.sh
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins
